@@ -1,9 +1,9 @@
-### django工程下的gulp实践
+## django工程下的gulp实践
 
-## 安装npm/gulp
+### step1. 安装npm/gulp
 
-## 拷贝gulpfile.js和package.json到工程根目录
+### step2. 拷贝gulpfile.js和package.json到工程根目录
 
-## gulp install
+### step3. 执行 gulp install
 
-## gulp
+### step4. 执行 gulp [(re)build|zip|clean|jshint|minifyjs(6)|minifycss]
