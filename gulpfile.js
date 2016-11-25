@@ -78,6 +78,12 @@ var tasks = {
         return gulp.src(path.jshint)
             .pipe($.jshint({
                 lastsemic: false,
+                laxcomma: true,
+                /*
+                    var a = 1
+                        ,b = 2
+                        ,c =3
+                */
                 asi: true,
                 sub: true,
                 eqeqeq: false,
@@ -116,6 +122,7 @@ var tasks = {
                 pretty: true
             }))
             .pipe(gulp.dest(path.dist))
+            .pipe(gulp.dest(path.static))
     },
     // css压缩
     minifycss: function() {
@@ -135,6 +142,7 @@ var tasks = {
                 pretty: true
             }))
             .pipe(gulp.dest(path.dist))
+            .pipe(gulp.dest(path.static))
     },
     // es6转换
     minifyjs6: function() {
@@ -164,7 +172,7 @@ var tasks = {
                 console.error("zip error!")
             })
             .pipe(gulp.dest(path.dist))
-            .pipe($.rename(staticZipFile))
+            //.pipe($.rename(staticZipFile))
             .pipe(gulp.dest(path.static))
     },
     // 清理dist
@@ -209,13 +217,13 @@ gulp.task("build", ["minifyjs", "minifycss"])
 gulp.task("rebuild", function() {
     return del(path.clean).then(function(paths) {
         console.log('delete files:\n', paths.join('\n'));
-        gulp.start('build')
+        gulp.start('build');
     });
 });
 
 // 压缩后打包
 gulp.task("default", ["build"], function() {
-    console.log('before start zip' + new Date())
-    gulp.start("zip")
-    console.log('after start zip' + new Date())
+    console.log('before start zip' + new Date());
+    gulp.start("zip");
+    console.log('after start zip' + new Date());
 });
