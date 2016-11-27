@@ -21,6 +21,7 @@ var gulp = require("gulp"),
             'gulp-size': 'size',
             'gulp-strip-debug': 'stripdebug',
             'gulp-jshint': 'jshint',
+            'gulp-cache': 'cache',
             'gulp-plumber': 'plumber',
             'gulp-babel': 'babel',
             'babel-preset-es2015': 'es2015'
@@ -71,23 +72,14 @@ var path = {
     static: "static"
 };
 
+
 // 任务配置
 var tasks = {
     // 代码检查
     jshint: function() {
         return gulp.src(path.jshint)
-            .pipe($.jshint({
-                lastsemic: false,
-                laxcomma: true,
-                /*
-                    var a = 1
-                        ,b = 2
-                        ,c =3
-                */
-                asi: true,
-                sub: true,
-                eqeqeq: false,
-            }))
+            .pipe($.jshint(".jshintrc"))
+            // .pipe($.cache($.jshint('.jshintrc')))
             // .pipe($.jshint.reporter("default"))
             .pipe($.jshint.reporter(jshintStyle))
     },
@@ -177,7 +169,9 @@ var tasks = {
     },
     // 清理dist
     clean: function() {
-        return del(path.clean);
+        del(path.clean);
+        return $.cache.clearAll()
+        // return del(path.clean);
         // return gulp.src(path.clean)
         // .pipe(vinylPaths(del));
     }

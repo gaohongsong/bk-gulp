@@ -1,11 +1,13 @@
 {
-  "name": "agent-setup",
+  "name": "bk-gulp",
   "version": "1.0.0",
-  "description": "example",
+  "description": "bk-gulp",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "jslint ./staic/js/**.js"
+    "env": "env",
+    "jshint": "jshint static/js/*.js",
+    "build-js": "uglifyjs static/js/app.js > static/js/app.npm.js"
   },
   "repository": {
     "type": "git",
@@ -14,9 +16,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "browserify": "^13.1.1",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
+    "gulp-cache": "^0.4.5",
     "gulp-concat": "^2.6.1",
     "gulp-delete-files": "0.0.1",
     "gulp-jshint": "^2.0.4",
@@ -33,6 +37,7 @@
     "jshint": "^2.9.4",
     "jshint-stylish": "^2.2.1",
     "plumber": "^0.4.8",
+    "uglifyjs": "^2.4.10",
     "vinyl-paths": "^2.1.0"
   }
 }
