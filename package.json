@@ -1,15 +1,15 @@
 {
-  "name": "agent-setup-open",
+  "name": "agent-setup",
   "version": "1.0.0",
-  "description": "蓝鲸智云应用开发模板--助力你的自动化 这里有各种层次的应用样例，根据你的需要，选择合适的样例开始快速开发。",
+  "description": "example",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "jslint staic/js/**.js"
+    "lint": "jslint ./staic/js/**.js"
   },
   "repository": {
     "type": "git",
-    "url": "http://www.jobqcloud.com:3000/hongsonggao/agent-setup.git"
+    "url": ""
   },
   "author": "",
   "license": "ISC",
