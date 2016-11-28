@@ -12,6 +12,7 @@ var gulp = require("gulp"),
     gulpLoadPlugins = require("gulp-load-plugins"),
     $ = gulpLoadPlugins({
         rename: {
+            'gulp-htmlmin': 'htmlmin',
             'gulp-minify-css': 'minifycss',
             'gulp-uglify': 'uglify',
             'gulp-sass': 'sass',
@@ -68,8 +69,10 @@ var path = {
         "static/sass/**/*.scss"
     ],
     base: "static",
+    static: "static",
+    templates: "templates",
+    app: "miya",
     dist: "dist",
-    static: "static"
 };
 
 
@@ -92,6 +95,29 @@ var tasks = {
             .pipe($.sass().on('error', sass.logError))
             .pipe(gulp.dest(path.dist));
     },
+    minifyhtml: function() {
+        return gulp.src([path.templates, "miya/app-config.html"].join('/'))
+            .pipe($.htmlmin({
+                ignoreCustomFragments: [
+                    /<%inherit[\s\S]*>/,
+                    /<%block[\s\S]*>/,
+                    /<\/%block>/,
+                    /\$\{[\s\S]*\}/
+                ],
+                removeComments: true,
+                collapseWhitespace: true,
+                collapseBooleanAttributes: true,
+                removeEmptyAttributes: true,
+                removeScriptTypeAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                minifyJS: true,
+                minifyCSS: true
+            }))
+            .pipe($.rename({
+                suffix: ".min"
+            }))
+            .pipe(gulp.dest(path.dist));
+    },
     // js压缩
     minifyjs: function() {
         return gulp.src(path.js, {
@@ -99,7 +125,7 @@ var tasks = {
             })
             // .pipe($.concat("app.js"))
             // .pipe($.babel()) 
-            // .pipe(gulp.dest("dist/js"))
+            // .pipe(gulp.dest(path.dist))
             .pipe($.size({
                 showFiles: true,
                 pretty: true
@@ -155,7 +181,6 @@ var tasks = {
     // 打包发布
     zip: function() {
         var zipFile = 'dist-' + new Date().getTime() + '.zip';
-        var staticZipFile = 'dist.zip';
         console.log('create release package: ' + zipFile);
         return gulp.src(path.zip)
             .pipe($.plumber())
@@ -164,15 +189,12 @@ var tasks = {
                 console.error("zip error!")
             })
             .pipe(gulp.dest(path.dist))
-            //.pipe($.rename(staticZipFile))
             .pipe(gulp.dest(path.static))
     },
     // 清理dist
     clean: function() {
         del(path.clean);
-        return $.cache.clearAll()
-        // return del(path.clean);
-        // return gulp.src(path.clean)
+        return $.cache.clearAll();
         // .pipe(vinylPaths(del));
     }
 
@@ -186,6 +208,9 @@ gulp.task('sass', tasks.sass);
 
 // css压缩
 gulp.task("minifycss", tasks.minifycss);
+
+// html压缩
+gulp.task("minifyhtml", tasks.minifyhtml);
 
 // es6转换
 gulp.task("minifyjs6", tasks.minifyjs6);
@@ -217,7 +242,6 @@ gulp.task("rebuild", function() {
 
 // 压缩后打包
 gulp.task("default", ["build"], function() {
-    console.log('before start zip' + new Date());
     gulp.start("zip");
-    console.log('after start zip' + new Date());
+    console.log('build finished.' + new Date());
 });
