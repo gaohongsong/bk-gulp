@@ -2,7 +2,7 @@
 静态资源打包压缩流程
 */
 
-'use strict'
+'use strict';
 
 // 加载插件
 var gulp = require("gulp"),
@@ -31,6 +31,11 @@ var gulp = require("gulp"),
 
 // 路径配置
 var path = {
+    // js-glob，js压缩文件路径
+    html: [
+        "templates/**/*.html",
+        "!templates/**/*.part"
+    ],
     // js-glob，js压缩文件路径
     js: [
         "static/js/**/*.js",
@@ -71,8 +76,7 @@ var path = {
     base: "static",
     static: "static",
     templates: "templates",
-    app: "miya",
-    dist: "dist",
+    dist: "dist"
 };
 
 
@@ -95,26 +99,28 @@ var tasks = {
             .pipe($.sass().on('error', sass.logError))
             .pipe(gulp.dest(path.dist));
     },
+    // html压缩
     minifyhtml: function() {
-        return gulp.src([path.templates, "miya/app-config.html"].join('/'))
+        return gulp.src(path.html)
             .pipe($.htmlmin({
                 ignoreCustomFragments: [
-                    /<%inherit[\s\S]*>/,
-                    /<%block[\s\S]*>/,
-                    /<\/%block>/,
-                    /\$\{[\s\S]*\}/
+                    /<%inherit[\s\S]*\/>/,
+                    /<%include[\s\S]*\/>/,
+                    /<%block[\s\S]*?>/,
+                    /<%[\s\S]*?%>/,
+                    /^(\s)*(#){2,}[\s\S]*>/,
+                    /%\s*(if|for|while)\s{1,}\S*:$/,
+                    /%[\s]*endif\s$/,
+                    /<\/%block[\s\S]*?>/
                 ],
                 removeComments: true,
-                collapseWhitespace: true,
+                collapseWhitespace: false,
                 collapseBooleanAttributes: true,
                 removeEmptyAttributes: true,
                 removeScriptTypeAttributes: true,
                 removeStyleLinkTypeAttributes: true,
                 minifyJS: true,
                 minifyCSS: true
-            }))
-            .pipe($.rename({
-                suffix: ".min"
             }))
             .pipe(gulp.dest(path.dist));
     },
@@ -209,7 +215,7 @@ gulp.task('sass', tasks.sass);
 // css压缩
 gulp.task("minifycss", tasks.minifycss);
 
-// html压缩
+// html压缩(慎重，若Html中掺杂其他模板语法，可能出现问题，建议只压缩内嵌css/js)
 gulp.task("minifyhtml", tasks.minifyhtml);
 
 // es6转换
@@ -244,4 +250,13 @@ gulp.task("rebuild", function() {
 gulp.task("default", ["build"], function() {
     gulp.start("zip");
     console.log('build finished.' + new Date());
+});
+
+
+// 帮助说明
+gulp.task("help", function() {
+    var helpInfo = "step1. npm install\n" +
+        "step2. npm install -g gulp\n" +
+        "step3. gulp <help|build|rebuild|zip|minifyjs|minifycss|minifyhtml|jshint|minifyjs6|sass>";
+    console.log(helpInfo)
 });
