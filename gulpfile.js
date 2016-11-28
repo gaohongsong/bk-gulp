@@ -2,7 +2,7 @@
 静态资源打包压缩流程
 */
 
-'use strict'
+'use strict';
 
 // 加载插件
 var gulp = require("gulp"),
@@ -12,6 +12,7 @@ var gulp = require("gulp"),
     gulpLoadPlugins = require("gulp-load-plugins"),
     $ = gulpLoadPlugins({
         rename: {
+            'gulp-htmlmin': 'htmlmin',
             'gulp-minify-css': 'minifycss',
             'gulp-uglify': 'uglify',
             'gulp-sass': 'sass',
@@ -30,6 +31,11 @@ var gulp = require("gulp"),
 
 // 路径配置
 var path = {
+    // js-glob，js压缩文件路径
+    html: [
+        "templates/**/*.html",
+        "!templates/**/*.part"
+    ],
     // js-glob，js压缩文件路径
     js: [
         "static/js/**/*.js",
@@ -68,8 +74,9 @@ var path = {
         "static/sass/**/*.scss"
     ],
     base: "static",
-    dist: "dist",
-    static: "static"
+    static: "static",
+    templates: "templates",
+    dist: "dist"
 };
 
 
@@ -92,6 +99,31 @@ var tasks = {
             .pipe($.sass().on('error', sass.logError))
             .pipe(gulp.dest(path.dist));
     },
+    // html压缩
+    minifyhtml: function() {
+        return gulp.src(path.html)
+            .pipe($.htmlmin({
+                ignoreCustomFragments: [
+                    /<%inherit[\s\S]*\/>/,
+                    /<%include[\s\S]*\/>/,
+                    /<%block[\s\S]*?>/,
+                    /<%[\s\S]*?%>/,
+                    /^(\s)*(#){2,}[\s\S]*>/,
+                    /%\s*(if|for|while)\s{1,}\S*:$/,
+                    /%[\s]*endif\s$/,
+                    /<\/%block[\s\S]*?>/
+                ],
+                removeComments: true,
+                collapseWhitespace: false,
+                collapseBooleanAttributes: true,
+                removeEmptyAttributes: true,
+                removeScriptTypeAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                minifyJS: true,
+                minifyCSS: true
+            }))
+            .pipe(gulp.dest(path.dist));
+    },
     // js压缩
     minifyjs: function() {
         return gulp.src(path.js, {
@@ -99,7 +131,7 @@ var tasks = {
             })
             // .pipe($.concat("app.js"))
             // .pipe($.babel()) 
-            // .pipe(gulp.dest("dist/js"))
+            // .pipe(gulp.dest(path.dist))
             .pipe($.size({
                 showFiles: true,
                 pretty: true
@@ -155,7 +187,6 @@ var tasks = {
     // 打包发布
     zip: function() {
         var zipFile = 'dist-' + new Date().getTime() + '.zip';
-        var staticZipFile = 'dist.zip';
         console.log('create release package: ' + zipFile);
         return gulp.src(path.zip)
             .pipe($.plumber())
@@ -164,15 +195,12 @@ var tasks = {
                 console.error("zip error!")
             })
             .pipe(gulp.dest(path.dist))
-            //.pipe($.rename(staticZipFile))
             .pipe(gulp.dest(path.static))
     },
     // 清理dist
     clean: function() {
         del(path.clean);
-        return $.cache.clearAll()
-        // return del(path.clean);
-        // return gulp.src(path.clean)
+        return $.cache.clearAll();
         // .pipe(vinylPaths(del));
     }
 
@@ -186,6 +214,9 @@ gulp.task('sass', tasks.sass);
 
 // css压缩
 gulp.task("minifycss", tasks.minifycss);
+
+// html压缩(慎重，若Html中掺杂其他模板语法，可能出现问题，建议只压缩内嵌css/js)
+gulp.task("minifyhtml", tasks.minifyhtml);
 
 // es6转换
 gulp.task("minifyjs6", tasks.minifyjs6);
@@ -217,7 +248,15 @@ gulp.task("rebuild", function() {
 
 // 压缩后打包
 gulp.task("default", ["build"], function() {
-    console.log('before start zip' + new Date());
     gulp.start("zip");
-    console.log('after start zip' + new Date());
+    console.log('build finished.' + new Date());
+});
+
+
+// 帮助说明
+gulp.task("help", function() {
+    var helpInfo = "step1. npm install\n" +
+        "step2. npm install -g gulp\n" +
+        "step3. gulp <help|build|rebuild|zip|minifyjs|minifycss|minifyhtml|jshint|minifyjs6|sass>";
+    console.log(helpInfo)
 });
