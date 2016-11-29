@@ -144,8 +144,8 @@ var tasks = {
             .on("error", function() {
                 console.error("zip error!")
             })
-            .pipe(gulp.dest(path.dist))
-            .pipe(gulp.dest(path.static))
+            .pipe(gulp.dest(path.dist));
+            //.pipe(gulp.dest(path.static))
     },
     // 清理dist
     clean: function() {

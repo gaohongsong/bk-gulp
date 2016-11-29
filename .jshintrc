@@ -16,7 +16,7 @@
     "globalstrict": true,
     "quotmark": false,   // true
     "undef": false,  // true
-    "unused": true,
+    "unused": false,
     "scripturl": true,
     "globals": {
         "define": false,
