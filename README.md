@@ -6,4 +6,7 @@
 
 ### step3. 执行 npm install
 
-### step4. 执行 gulp <help|build|rebuild|zip|minifyjs|minifycss|minifyhtml|jshint|minifyjs6|sass>
+### step4. 执行 gulp <help|build|rebuild|zip|minifyjs|cleancss|minifyhtml|jshint|minifyjs6|sass>
+
+## 详细文档
+http://note.youdao.com/share/?id=e5bdcb91c3deb449b41315624b69e98e&type=note#/
