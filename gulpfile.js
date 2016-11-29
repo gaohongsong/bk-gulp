@@ -7,13 +7,12 @@
 // 加载插件
 var gulp = require("gulp"),
     del = require("del"),
-    //vinylPaths = require("vinyl-paths"),
     jshintStyle = require("jshint-stylish"),
     gulpLoadPlugins = require("gulp-load-plugins"),
     $ = gulpLoadPlugins({
         rename: {
             'gulp-htmlmin': 'htmlmin',
-            'gulp-minify-css': 'minifycss',
+            'gulp-clean-css': 'cleancss',
             'gulp-uglify': 'uglify',
             'gulp-sass': 'sass',
             'gulp-concat': 'concat',
@@ -24,61 +23,12 @@ var gulp = require("gulp"),
             'gulp-jshint': 'jshint',
             'gulp-cache': 'cache',
             'gulp-plumber': 'plumber',
-            'gulp-babel': 'babel',
-            'babel-preset-es2015': 'es2015'
+            'gulp-babel': 'babel'
         }
     });
 
-// 路径配置
-var path = {
-    // js-glob，js压缩文件路径
-    html: [
-        "templates/**/*.html",
-        "!templates/**/*.part"
-    ],
-    // js-glob，js压缩文件路径
-    js: [
-        "static/js/**/*.js",
-        "!static/js/**/*.min.js",
-        "!static/js/**/*.es6.js"
-    ],
-    // .es6.js-glob，js转码文件路径
-    es6js: [
-        "static/js/**/*.es6.js",
-        "!static/js/**/*.min.js"
-    ],
-    // jshint-glob，js检查文件路径
-    jshint: [
-        "static/js/**/app.js",
-        "static/js/**/app-config.js",
-        "static/js/**/proxy-agent.js",
-        "static/js/**/operation-record.js"
-    ],
-    // css-glob，css压缩文件路径
-    css: [
-        "static/css/*.css",
-        "!static/css/*.min.css"
-    ],
-    // zip-glob，打包路径
-    zip: [
-        "dist/**/*.*",
-        "!dist/**/*.zip"
-    ],
-    // clean-glob，清理文件路径
-    clean: [
-        // "dist/**/*.zip",
-        "dist"
-    ],
-    // scss-glob，scss文件路径
-    scss: [
-        "static/sass/**/*.scss"
-    ],
-    base: "static",
-    static: "static",
-    templates: "templates",
-    dist: "dist"
-};
-
+// 加载路径配置
+var path = require('./config.js')();
 
 // 任务配置
 var tasks = {
@@ -95,7 +45,7 @@ var tasks = {
         return gulp.src(path.scss, {
                 base: path.base
             })
-            .pipe(watch(path.scss))
+            .pipe($.watch(path.scss))
             .pipe($.sass().on('error', sass.logError))
             .pipe(gulp.dest(path.dist));
     },
@@ -149,7 +99,7 @@ var tasks = {
             .pipe(gulp.dest(path.static))
     },
     // css压缩
-    minifycss: function() {
+    cleancss: function() {
         return gulp.src(path.css, {
                 base: path.base
             })
@@ -160,7 +110,7 @@ var tasks = {
             .pipe($.rename({
                 suffix: ".min"
             }))
-            .pipe($.minifycss())
+            .pipe($.cleancss())
             .pipe($.size({
                 showFiles: true,
                 pretty: true
@@ -201,9 +151,7 @@ var tasks = {
     clean: function() {
         del(path.clean);
         return $.cache.clearAll();
-        // .pipe(vinylPaths(del));
     }
-
 };
 
 // 代码检查
@@ -213,7 +161,7 @@ gulp.task("jshint", tasks.jshint);
 gulp.task('sass', tasks.sass);
 
 // css压缩
-gulp.task("minifycss", tasks.minifycss);
+gulp.task("cleancss", tasks.cleancss);
 
 // html压缩(慎重，若Html中掺杂其他模板语法，可能出现问题，建议只压缩内嵌css/js)
 gulp.task("minifyhtml", tasks.minifyhtml);
@@ -236,7 +184,7 @@ gulp.task("zip", tasks.zip);
 // });
 
 // 静态资源压缩
-gulp.task("build", ["minifyjs", "minifycss"])
+gulp.task("build", ["minifyjs", "cleancss"]);
 
 // 清理dist目录+静态资源压缩
 gulp.task("rebuild", function() {
@@ -249,7 +197,6 @@ gulp.task("rebuild", function() {
 // 压缩后打包
 gulp.task("default", ["build"], function() {
     gulp.start("zip");
-    console.log('build finished.' + new Date());
 });
 
 
@@ -257,6 +204,6 @@ gulp.task("default", ["build"], function() {
 gulp.task("help", function() {
     var helpInfo = "step1. npm install\n" +
         "step2. npm install -g gulp\n" +
-        "step3. gulp <help|build|rebuild|zip|minifyjs|minifycss|minifyhtml|jshint|minifyjs6|sass>";
+        "step3. gulp <help|build|rebuild|zip|minifyjs|cleancss|minifyhtml|jshint|minifyjs6|sass>";
     console.log(helpInfo)
 });
